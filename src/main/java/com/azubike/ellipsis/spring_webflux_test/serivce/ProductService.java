@@ -2,6 +2,7 @@ package com.azubike.ellipsis.spring_webflux_test.serivce;
 
 import com.azubike.ellipsis.spring_webflux_test.entity.ProductEntity;
 import com.azubike.ellipsis.spring_webflux_test.repositories.ProductRepo;
+import com.azubike.ellipsis.spring_webflux_test.request.ProductRequest;
 import com.azubike.ellipsis.spring_webflux_test.response.ProductResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,15 @@ public class ProductService {
     return productRepo.findById(id);
   }
 
+  public Mono<ProductEntity> saveProduct(ProductEntity productEntity) {
+    return productRepo.save(productEntity);
+  }
+
   public ProductResponse mapToProductResponse(ProductEntity productEntity) {
     return new ModelMapper().map(productEntity, ProductResponse.class);
+  }
+
+  public ProductEntity mapToProductEntity(ProductRequest productRequest) {
+    return new ModelMapper().map(productRequest, ProductEntity.class);
   }
 }
