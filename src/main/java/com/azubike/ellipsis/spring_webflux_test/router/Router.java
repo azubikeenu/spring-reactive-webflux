@@ -18,8 +18,9 @@ public class Router {
   }
 
   @Bean
-  public RouterFunction<ServerResponse> routes() {
+  public RouterFunction<ServerResponse> productRoutes() {
     return RouterFunctions.route(
-        RequestPredicates.GET(BASE_URL + "products"), productHandler::getAllProducts);
+        RequestPredicates.GET(BASE_URL + "products"), productHandler::getAllProducts)
+            .andRoute(RequestPredicates.GET(BASE_URL +"products/{id}"), productHandler::getProduct);
   }
 }

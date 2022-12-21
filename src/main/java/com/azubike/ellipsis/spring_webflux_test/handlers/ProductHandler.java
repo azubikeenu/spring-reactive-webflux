@@ -1,6 +1,6 @@
 package com.azubike.ellipsis.spring_webflux_test.handlers;
 
-import com.azubike.ellipsis.spring_webflux_test.entity.ProductEntity;
+import com.azubike.ellipsis.spring_webflux_test.response.ProductResponse;
 import com.azubike.ellipsis.spring_webflux_test.serivce.ProductService;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -19,6 +19,17 @@ public class ProductHandler {
   public Mono<ServerResponse> getAllProducts(ServerRequest request) {
     return ServerResponse.ok()
         .contentType(MediaType.APPLICATION_JSON)
-        .body(productService.getAll(), ProductEntity.class);
+        .body(
+            productService.getAll().map(productService::mapToProductResponse),
+            ProductResponse.class);
+  }
+
+  public Mono<ServerResponse> getProduct(ServerRequest request) {
+    final Long id = Long.valueOf(request.pathVariable("id"));
+    return ServerResponse.ok()
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(
+            productService.getProductById(id).map(productService::mapToProductResponse),
+            ProductResponse.class);
   }
 }
