@@ -32,7 +32,11 @@ public class ProductHandler {
     return ServerResponse.ok()
         .contentType(MediaType.APPLICATION_JSON)
         .body(
-            productService.getProductById(id).map(productService::mapToProductResponse),
+            productService
+                .getProductById(id)
+                .onErrorResume(
+                    e -> Mono.error(new ProductException(e.getMessage(), HttpStatus.BAD_REQUEST)))
+                .map(productService::mapToProductResponse),
             ProductResponse.class);
   }
 
@@ -43,9 +47,9 @@ public class ProductHandler {
         .body(
             productService
                 .getProductById(id)
-                .map(productService::mapToProductResponse)
                 .onErrorResume(
-                    e -> Mono.error(new ProductException(e.getMessage(), HttpStatus.BAD_REQUEST))),
+                    e -> Mono.error(new ProductException(e.getMessage(), HttpStatus.BAD_REQUEST)))
+                .map(productService::mapToProductResponse),
             ProductResponse.class);
   }
 
