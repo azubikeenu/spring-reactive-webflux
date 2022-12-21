@@ -1,0 +1,23 @@
+version: '3.9'
+services:
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "spring-reactive"
+      MYSQL_USER: "student"
+      MYSQL_PASSWORD: "userpass"
+    ports:
+    - '3309:3306'
+    restart: always
+    volumes:
+    - reactive-store:/var/lib/mysql
+  app:
+    depends_on:
+      - db
+    build:
+      context: .
+
+
+volumes:
+  reactive-store:
