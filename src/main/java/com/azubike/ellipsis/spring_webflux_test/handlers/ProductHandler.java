@@ -1,6 +1,8 @@
 package com.azubike.ellipsis.spring_webflux_test.handlers;
 
 import com.azubike.ellipsis.spring_webflux_test.exceptions.ProductException;
+import com.azubike.ellipsis.spring_webflux_test.mappers.ProductRequestToProduct;
+import com.azubike.ellipsis.spring_webflux_test.mappers.ProductToProductResponse;
 import com.azubike.ellipsis.spring_webflux_test.request.ProductRequest;
 import com.azubike.ellipsis.spring_webflux_test.response.ProductResponse;
 import com.azubike.ellipsis.spring_webflux_test.serivce.ProductService;
@@ -14,17 +16,23 @@ import reactor.core.publisher.Mono;
 @Component
 public class ProductHandler {
   private final ProductService productService;
+  private final ProductRequestToProduct productRequestToProduct;
+  private final ProductToProductResponse productToProductResponse;
 
-  public ProductHandler(ProductService productService) {
+  public ProductHandler(
+      ProductService productService,
+      ProductRequestToProduct productRequestToProduct,
+      ProductToProductResponse productToProductResponse) {
     this.productService = productService;
+    this.productRequestToProduct = productRequestToProduct;
+    this.productToProductResponse = productToProductResponse;
   }
 
   public Mono<ServerResponse> getAllProducts(ServerRequest request) {
     return ServerResponse.ok()
         .contentType(MediaType.APPLICATION_JSON)
         .body(
-            productService.getAll().map(productService::mapToProductResponse),
-            ProductResponse.class);
+            productService.getAll().map(productToProductResponse::convert), ProductResponse.class);
   }
 
   public Mono<ServerResponse> getProduct(ServerRequest request) {
@@ -36,7 +44,7 @@ public class ProductHandler {
                 .getProductById(id)
                 .onErrorResume(
                     e -> Mono.error(new ProductException(e.getMessage(), HttpStatus.BAD_REQUEST)))
-                .map(productService::mapToProductResponse),
+                .map(productToProductResponse::convert),
             ProductResponse.class);
   }
 
@@ -49,7 +57,7 @@ public class ProductHandler {
                 .getProductById(id)
                 .onErrorResume(
                     e -> Mono.error(new ProductException(e.getMessage(), HttpStatus.BAD_REQUEST)))
-                .map(productService::mapToProductResponse),
+                .map(productToProductResponse::convert),
             ProductResponse.class);
   }
 
@@ -59,11 +67,11 @@ public class ProductHandler {
         .contentType(MediaType.APPLICATION_JSON)
         .body(
             productRequestMono
-                .map(productService::mapToProductEntity)
+                .map(productRequestToProduct::convert)
                 .flatMap(productService::saveProduct)
                 .onErrorResume(
                     e -> Mono.error(new ProductException(e.getMessage(), HttpStatus.BAD_REQUEST)))
-                .map(productService::mapToProductResponse),
+                .map(productToProductResponse::convert),
             ProductResponse.class);
   }
 }
